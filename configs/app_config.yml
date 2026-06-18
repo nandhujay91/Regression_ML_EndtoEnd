@@ -1,0 +1,14 @@
+project_name: Housing Regression
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  models: models
+
+model:
+  best_model: models/xgb_best_model.pkl
+  default_model: models/xgb_model.pkl
+
+api:
+  host: 127.0.0.1
+  port: 8000

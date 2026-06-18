@@ -1,0 +1,7 @@
+experiment_name: xgboost_optuna_housing
+
+tracking:
+  uri: file:./mlruns
+
+optuna:
+  n_trials: 15

@@ -1,0 +1,21 @@
+expectations:
+
+  price:
+    min: 1000
+    max: 12000000
+
+  median_list_price:
+    min: 0
+    max: 19000000
+
+  median_sale_price:
+    min: 0
+    max: 19000000
+
+  median_dom:
+    min: 0
+    max: 10000
+
+  avg_sale_to_list:
+    min: 0
+    max: 2.0

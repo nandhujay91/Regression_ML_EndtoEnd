@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        run: pytest
+
+      - name: Build API Docker image
+        run: docker build -t housing-api .
+
+      - name: Build Streamlit Docker image
+        run: docker build -f Dockerfile.streamlit -t housing-streamlit .

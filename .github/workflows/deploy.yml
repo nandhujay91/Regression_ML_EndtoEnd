@@ -1,0 +1,73 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build and push API image
+      - name: Build, Tag and Push housing-api
+        run: |
+          IMAGE_TAG=${GITHUB_SHA}
+          ECR_REGISTRY=261899902410.dkr.ecr.eu-west-2.amazonaws.com
+          ECR_REPOSITORY=housing-api
+
+          docker build -f Dockerfile \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      # Build and push Streamlit image
+      - name: Build, Tag and Push housing-streamlit
+        run: |
+          IMAGE_TAG=${GITHUB_SHA}
+          ECR_REGISTRY=261899902410.dkr.ecr.eu-west-2.amazonaws.com
+          ECR_REPOSITORY=housing-streamlit
+
+          docker build -f Dockerfile.streamlit \
+          -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Deploy API Service
+        run: |
+          aws ecs update-service \
+          --cluster housing-api-cluster-ecs \
+          --service housing-api-service \
+          --force-new-deployment
+
+      - name: Deploy Streamlit Service
+        run: |
+          aws ecs update-service \
+          --cluster housing-api-cluster-ecs \
+          --service housing-streamlit-service \
+          --force-new-deployment
