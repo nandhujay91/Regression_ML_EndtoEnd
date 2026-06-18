@@ -21,8 +21,11 @@ wheels/
 # Project-specific ignores
 # ==========================================
 
-# Datasets (raw + processed)
-data/
+# Raw datasets
+data/raw/
+
+# Ignore prediction outputs
+data/predictions/
 
 # MLflow experiment tracking
 mlruns/
